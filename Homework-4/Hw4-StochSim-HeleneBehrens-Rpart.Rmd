@@ -1,0 +1,192 @@
+---
+title: "Homework 4 - StochSim - Helene Behrens"
+author: "Helene Behrens"
+date: "6 desember 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Exercise 1
+
+We want to estimate the derivative of expectation of the random variable $Z$; $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$, where $Z = h(X) = 1.5^x$ and $X \sim \text{Weibull}(x;\lambda,\alpha = 2).$ 
+
+For all the methods, the goal is to find a random variable $D(\lambda)$ for which $\textbf{E}[D(\lambda)] = \frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$.
+
+## 1a)
+Explain briefly how one can estimate $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$ using the method of finite differences and using common random numbers.
+
+In the finite differences method, we estimate $D(\lambda)$ by the formula 
+$$ D(\lambda) = \frac{Z(\lambda + \frac{h}{2}) - Z(\lambda - \frac{h}{2})}{h}$$
+for some appropriate $h$. We sample this $R$ times, and by the Monte Carlo Method, we get the finite differences estimator $$z'(\lambda) = \frac{1}{R}\sum_{r=1}^R D_r(\lambda).$$ We sample $Z$ by $$Z(\lambda \pm h/2) = 1.5^{F^{\leftarrow}_\lambda(U)},$$ where $F^{\leftarrow}_\lambda(U)$ is the inverse Weibull distribution. 
+This is found as follows: 
+The cumulative density function of the Weibull distribution with $\alpha = 2$ is $F(x;2,\lambda) = 1 - e^{-\lambda x^2}$. We then use the inverse distribution method to sample from the Weibull distribtion given uniform random variables: 
+$$U = 1 - e^{-\lambda x^2}$$
+$$-\lambda x^2 = ln(1 - U)$$
+$$x^2 = -\frac{1}{\lambda}ln(1- U)$$
+$$\Rightarrow F^{\leftarrow}_{\lambda}(U) = \sqrt{-\frac{1}{\lambda}ln(1 - U)}.$$
+
+## 1b)
+Explain briefly how one can estimate $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$ using the method of finite differences and using common random numbers.
+
+When we use the finite difference method together with common random numbers, we sample $Z^-(\lambda) = Z(\lambda - h/2)$ and $Z^+(\lambda) = Z(\lambda + h/2)$ R times, and get the estimator
+$$z'(\lambda) = \frac{1}{R}\sum_{r=1}^R(Z^+_r(\lambda) - Z^-_r(\lambda)).$$
+The $Z(\lambda \pm h/2)$ are sampled with the inversion method, as explained in 1a). 
+
+## 1c)
+
+Explain briefly how one can estimate $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$ using the method of infinitesimal perturbation analysis.
+
+Infinitesimal perturbation analysis is based on the assumption 
+$$\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}} = \textbf{E}[\frac{\text{d}}{\text{d}\lambda}Z|_{\lambda = \frac{1}{2}}] = \textbf{E}[D(\lambda)].$$
+By sampling R replicates of $D(\lambda = 0.5) = \frac{\text{d}}{\text{d}\lambda}Z(\lambda)|_{\lambda = \frac{1}{2}}$, we get the Crude Monte Carlo estimator
+$$\textbf{E}[D(\lambda)] = \frac{1}{R}\sum_{r=1}^RD_r(\lambda = 0.5).$$
+To find $\frac{\text{d}}{\text{d}\lambda}Z|_{\lambda = \frac{1}{2}}$ we use that $Z(X;\lambda)$ has the same distribution as $$h_{\lambda}(U) = 1.5^{\sqrt{-\frac{1}{\lambda}ln(1-U)}}.$$ So, we get 
+$$D(\lambda) = \frac{\text{d}}{\text{d}\lambda}Z(\lambda) = \frac{\text{d}}{\text{d}\lambda}h_{\lambda}(U) = \frac{\text{d}}{\text{d}\lambda}1.5^{\sqrt{-\frac{1}{\lambda}ln(1-U)}}$$
+$$= ln(1.5)1.5^{\sqrt{-\frac{1}{\lambda}ln(1-U)}}\cdot\frac{\text{d}}{\text{d}\lambda}\sqrt{-\frac{1}{\lambda}ln(1-U)}$$
+$$= ln(1.5)1.5^{\sqrt{-\frac{1}{\lambda}ln(1-U)}}(-\frac{1}{2})\sqrt{-ln(1-U)}(\frac{1}{\lambda})^{3/2}$$
+$$ = -\frac{ln(1.5)}{2}\sqrt{-ln(1-U)}\cdot 1.5^{\sqrt{-\frac{1}{\lambda}ln(1-U)}}\cdot (\frac{1}{\lambda})^{3/2}.$$
+
+## 1d) 
+Explain briefly how one can estimate $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]|_{\lambda = \frac{1}{2}}$ using the likelihood ratio method.
+In the Likelohood Ratio Method, we assume distributional dependence on $\lambda$, and that we want to estimate $\frac{\text{d}}{\text{d}\lambda}\textbf{E}[Z]$ in a specific point $\lambda_0$, here $\lambda_0 = 0.5$. We define 
+$$L(\lambda,x) = f_\lambda(x)/f_{\lambda_0}(x), $$
+where $f_\lambda(x)$ is the density function of $X$, the Weibull distribution. 
+We use that 
+$$Z(\lambda) = h(X;\lambda) \Rightarrow z(\lambda) = \textbf{E}_{\lambda}[h(X)]$$ and that
+$$z(\lambda) = \int h(x)f_{\lambda}(x)\text{d}x = \int h(x)L(\lambda,x)f_{\lambda_0}(x)\text{d}x = \textbf{E}_{\lambda_0}[h(x)L(\lambda,x)]$$
+This again, suggests that 
+$$z'(\lambda) = \textbf{E}_{\lambda_0}[h(x)L'(\lambda,x)],$$
+where $L'(\lambda,x) = \frac{\text{d}}{\text{d}\lambda}L(\lambda,x)$, which is what we want to estimate. The procedure is then to sample R replications of the r.v $X$, which we in our case can do by the inversion method, as previously seen, and to compute $h(X_r)L'(X_r;\lambda)|_{\lambda = \lambda_0}.$ We then get the estimator 
+$$z'(\lambda) = \frac{1}{R}\sum_{r=1}^Rh(X_r)L'(X_r;\lambda)|_{\lambda = \lambda_0}$$. 
+
+In our case, we have $h(x) = 1.5^x$ and we find $L'(X_r;\lambda)|_{\lambda = \lambda_0}$ as follows: 
+We insert for $\lambda_0=0.5$ in the Weibull distribution, and get
+$$L(\lambda,x) = f_\lambda(x)/f_{\lambda_0}(x)=\frac{2\lambda^2xe^{-\lambda^2x^2}}{2\cdot0.5^2xe^{-0.5^2x^2}}$$
+$$= 4\lambda^2e^{-\lambda^2x^2}e^{0.5^2x^2} = 4\lambda^2e^{x^2(\frac{1}{4} - \lambda^2)}$$
+Then, we get 
+$$L'(\lambda,x) = \frac{\text{d}}{\text{d}\lambda}4\lambda^2e^{x^2(\frac{1}{4} - \lambda^2)} = 4e^{\frac{x^2}{4}}\cdot\frac{\text{d}}{\text{d}\lambda}\lambda^2e^{-\lambda^2x^2}$$
+$$= 4e^{\frac{x^2}{4}}\big[ 2\lambda e^{-\lambda^2x^2}  + \lambda^2 e^{-\lambda^2x^2}(-2\lambda x^2)\big] = 8\lambda e^{x^2(\frac{1}{4} - \lambda^2)} - 8\lambda^3e^{x^2(\frac{1}{4} - \lambda^2)}$$
+Finally, evaluating this in $\lambda = \lambda_0 = 0.5,$ we get 
+$$L'(x,\lambda = 0.5) = 4 - x^2.$$
+
+## 1e) 
+Implement each of these methods in a simulation program.
+
+```{r}
+library("mltools")
+# Implement method of finite differences without common random numbers
+
+
+Weibull <- function(U,lamb){
+  return(sqrt(-(1/lamb)*log(1 - U)))
+}
+
+SampleMSE <- function(estim, vals){
+  return(sum((vals-estim)^2)/length(vals))
+}
+
+fin_diffD <- function(lamb,h){
+  U <- runif(2)
+  Z1 <- 1.5^Weibull(U[1],lamb + h/2)
+  Z2 <- 1.5^Weibull(U[2],lamb  - h/2)
+  return((Z1-Z2)/h)
+}
+
+fin_diff <- function(lamb, R, h){
+  fin_diffDs = c()
+  lamb <- 0.5
+  for(r in 1:R){
+    D <- fin_diffD(lamb,h)
+    fin_diffDs = c(fin_diffDs,D)
+  }
+  return(sum(fin_diffDs)/R)
+}
+
+# Implement method of finite differences with common random numbers
+
+fin_diffRN <- function(lamb,R,h){
+  Zs <- c()
+  for(r in 1:R){
+    U <- runif(2)
+    Z1 <- 1.5^Weibull(U[1],lamb + h/2)
+    Z2 <- 1.5^Weibull(U[2],lamb  - h/2)
+    Zs = c(Zs,Z1-Z2)
+  }
+  return(sum(Zs)/(R*h))
+}
+
+
+# Implement method of infinitesimal perturbation
+
+inf_pert <- function(lamb, R){
+  Ds = c()
+  for(r in 1:R){
+    U = runif(1)
+    D = -(log(1.5)/2)*sqrt(-log(1-U))*1.5^(sqrt(-log(1-U)/lamb))*(1/lamb)^(3/2)
+    Ds = c(Ds,D)
+  }
+  return(sum(Ds)/R)
+}
+
+
+#Implement the likelihood ratio method
+lik_rat <- function(R,lamb=0.5){
+  Zs = c()
+  for(r in 1:R){
+    U = runif(1)
+    X <- Weibull(U,lamb)
+    Z = (1.5^X)*(4-X^2)
+    Zs = c(Zs,Z)
+  }
+  return(sum(Zs)/R)
+}
+
+#Sample mean squared errors for comparison:
+#Produce estimates for R = 1000, 100 times:
+fd <- c()
+fdRN <- c()
+ip <- c()
+lr <- c()
+for(n in 1:300){
+  fd <- c(fd,fin_diff(0.5,1000,0.1))
+  fdRN <- c(fdRN,fin_diffRN(0.5,1000,0.1))
+  ip <- c(ip,inf_pert(0.5,1000))
+  lr <- c(lr,lik_rat(1000,0.5))
+}
+
+fdEst = mean(fd);fdRNEst = mean(fdRN);ipEst = mean(ip); lrEst = mean(lr) 
+fdEst;fdRNEst;ipEst;lrEst
+fdMSE = SampleMSE(fdEst,fd); fdMSE; var(fd)
+fdRNMSE = SampleMSE(fdRNEst,fdRN); fdRNMSE; var(fdRN)
+ipMSE = SampleMSE(ipEst,ip); ipMSE; var(ip) 
+lrMSE = SampleMSE(lrEst,lr); lrMSE; var(lr)
+
+
+```
+From this, the infinitesimal perturbation analysis method seems to be the better. So, we will do one run of this with $R$ very high, to make an attempt at a true value. We will then use this to find the sample MSE for the methods, using a smaller $R$.
+
+```{r eval=FALSE}
+True_val <- inf_pert(0.5,100000)
+True_val
+
+
+```
+We get an estimation for the true value at $\approx -1$ and we will use this to compare the sample MSE's and by that the performance of the different methods. 
+
+
+```{r}
+True_val = -1.005929 #Comment this out if you run code chunk above as well
+
+fdMSE1 = SampleMSE(True_val,fd); fdMSE1;
+fdRNMSE1 = SampleMSE(True_val,fdRN); fdRNMSE1; 
+ipMSE1 = SampleMSE(True_val,ip); ipMSE1; 
+lrMSE1 = SampleMSE(True_val,lr); lrMSE1 
+
+
+```
+
+As expected, the method of infinitesimal perturbation analysis produces the smallest MSE, and we can conclude that this is the method that is best suited for the simulation in our case. Furthermore, we note that both finite difference methods produce relatively small sample MSEs, at least compared to what we observe from the Likelihood ratio method. We do observe a small difference between the finite differences with and without common random numbers, in that the method with common random numbers appear to produce somewhat a somewhat smaller MSE overall, although this difference does not seem to be consistent. Additionally, it can be shown that the finite differences method with common random numbers have lower variance, which leads us to prefer this method over the standard finite differences method. It should be noted, however, that these two methods are very sensitive to the choice of $h$. And since the optimal value of $h$ is dependent  of $z'''(x)$, which is typically not available, it can be challenging to find a suitable value for $h$. In this case, we looked at the fact that $h \sim R^{-1/6} \approx 0.3$, and chose $h = 0.1$ in the same order of magnitude. Lastly, in our case the Likelihood Ratio method performs clearly the worst. 
+
+Thus: our final ranking of the estimators, from most preferred to least perferred is: 
+1) Infinitesimal Perturbation Analysis, 2) Finite Differences with common random numbers, 3) Finite differences without common random numbers , 4) Likelihood ratio method. 
